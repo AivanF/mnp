@@ -2,6 +2,9 @@
 Better implementation of the brute-force approach.
 In contrast to the first one, it has time complexity O(n^2)
 because of getting rid of the loop over parallel lines.
+
+Two-tier iteration over all the points with lines saving.
+Lines are stored as a slope and a shift to distinguish parallel lines.
 """
 
 __author__ = 'AivanF.com, 31.05.2019'
@@ -28,8 +31,8 @@ def gcd(a, b):
 	return inner(a, b)
 
 
-def get_delta(a, b):
-	"""Returns "normalised" vector between given points."""
+def get_slope(a, b):
+	"""Returns "normalised" slope between given points."""
 	dx = a[0] - b[0]
 	dy = a[1] - b[1]
 	div = gcd(dx, dy)
@@ -47,65 +50,63 @@ def get_delta(a, b):
 	return dx, dy
 
 
-def describe_parallel(point, vector):
+def get_shift(point, slope):
 	"""Returns a value which is the same for parallel lines."""
 	px = point[0]
 	py = point[1]
-	dx = vector[0]
-	dy = vector[1]
+	dx = slope[0]
+	dy = slope[1]
 
-	def shift(count):
+	def move(count):
 		nonlocal px, py
 		px += dx * count
 		py += dy * count
 
 	if px != 0 and dx > 0:
-		shift(-int(px / dx))
+		move(-int(px / dx))
 	if px < 0:
-		shift(1)
+		move(1)
 	if dx == 0:
 		if py != 0 and dy > 0:
-			shift(-int(py / dy))
+			move(-int(py / dy))
 		if py < 0:
-			shift(1)
+			move(1)
 	if show_details:
-		print(point, vector, (px,py))
+		print(point, slope, (px,py))
 	return (px, py)
 
 
 def mnp(points):
 	"""Returns Maximum Number of Points on the same line"""
 
-	# It's structure: {slope<(int,int)>: {shift<int>: count<int>}}
+	# It's structure: {slope<(int,int)>: {shift<int,int>: count<int>}}
 	slopes = {}
 
 	for i in range(len(points)):
-		# Vectors that are already assigned to current point
-		# must be skipped
-		done_vectors = []
+		# Slopes that are already assigned to current point
+		# must be skipped. See Playfair's axiom.
+		processed_slopes = set()
 		for j in range(len(points)):
 			if j >= i:
 				break
 
-			# Deterimine vector between 2 current point
-			current_vector = get_delta(points[i], points[j])
-			# Check if the vector was already processed at this point
-			if current_vector in done_vectors:
+			# Deterimine slope between 2 current point
+			current_slope = get_slope(points[i], points[j])
+			# Check if the slope was already processed at this point
+			if current_slope in processed_slopes:
 				continue
 			else:
-				done_vectors.append(current_vector)
+				processed_slopes.add(current_slope)
 
-			# Transform parallel lines to some static value
-			current_shift = describe_parallel(points[i], current_vector)
+			# Transform parallel lines to some comparable value
+			current_shift = get_shift(points[i], current_slope)
 
 			if show_details:
-				print(points[i], points[j], current_vector, current_shift)
+				print(points[i], points[j], current_slope, current_shift)
 
-			if current_vector in slopes:
+			if current_slope in slopes:
 				# Try to find the same line
-				matched = False
-
-				all_shifts = slopes[current_vector]
+				all_shifts = slopes[current_slope]
 				if current_shift in all_shifts:
 					if show_details:
 						print('matched')
@@ -118,12 +119,12 @@ def mnp(points):
 			else:
 				if show_details:
 					print('new slope')
-				slopes[current_vector] = {current_shift: 2}
+				slopes[current_slope] = {current_shift: 2}
 
 	if show_details:
 		print(slopes)
 
-	# Search for the longest line
+	# Search for the "longest" line
 	res = 0
 	found = None
 	for slope in slopes:
@@ -134,18 +135,3 @@ def mnp(points):
 	if show_details:
 		print('The result:', found)
 	return res
-
-
-if __name__ == '__main__':
-	data = [
-		[(1,0), (1,1)],
-		[(-1,-2), (1,1)],
-		[(1,-1), (1,1)],
-
-		[(1,10), (0,1)],
-		[(1,15), (0,1)],
-		[(0,15), (0,1)],
-	]
-	for sample in data:
-		value = describe_parallel(sample[0], sample[1])
-		print(sample[0], sample[1], value)
