@@ -3,9 +3,10 @@ My solutions of the following task.
 Given n points on a 2D plane, find the maximum number of points
 that lie on the same straight line.
 
-Two algorithms were implemented:
+Several algorithms were implemented:
 - Aivan's rotational one with O(n) time complexity
-- and usual brute-force with O(n^2) complexity
+- simple brute-force with O(n^3) complexity
+- enhanced brute-force with O(n^2) complexity
 """
 
 __author__ = 'AivanF.com, 28.05.2019'
@@ -14,6 +15,7 @@ import time
 import random
 import alg_rot
 import alg_bf
+import alg_bf2
 
 samples = [
 	([(1,1), (2,2), (3,3)], 3),
@@ -108,9 +110,10 @@ def compare_random(a1, a2, observations, point_number, square_size):
 
 
 if __name__ == '__main__':
-	check_prepared(alg_bf)
+	# check_prepared(alg_bf)
+	check_prepared(alg_bf2)
 	check_prepared(alg_rot)
 
-	# alg_bf is always correct,
+	# alg_bf and alg_bf2 are always correct,
 	# so this function call shows errors of alg_rot
-	compare_random(alg_bf, alg_rot, 100, 50, 15)
+	compare_random(alg_bf2, alg_rot, 100, 50, 15)
