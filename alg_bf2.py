@@ -76,8 +76,7 @@ def describe_parallel(point, vector):
 def mnp(points):
 	"""Returns Maximum Number of Points on the same line"""
 
-	# It's structure: {slope<(int,int)>: {point<(int,int)>: count<int>}}
-	# Must be: {slope<(int,int)>: {parallel_shift(int): count<int>}}
+	# It's structure: {slope<(int,int)>: {shift<int>: count<int>}}
 	slopes = {}
 
 	for i in range(len(points)):
