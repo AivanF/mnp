@@ -12,7 +12,7 @@ show_details = False
 
 
 def gcd(a, b):
-	# Returns greatest common divider
+	"""Returns greatest common divider."""
 	a,b = abs(a),abs(b)
 	if a == 0 or b == 0:
 		return max(a, b)
@@ -30,7 +30,7 @@ def gcd(a, b):
 
 
 def get_delta(a, b):
-	# Returns "normalised" vector between given points
+	"""Returns "normalised" vector between given points."""
 	dx = a[0] - b[0]
 	dy = a[1] - b[1]
 	div = gcd(dx, dy)
@@ -100,7 +100,12 @@ def mnp(points):
 
 	# Search for the longest line
 	res = 0
+	found = None
 	for slope in slopes:
 		for point in slopes[slope]:
-			res = max(res, slopes[slope][point])
+			if slopes[slope][point] > res:
+				res = slopes[slope][point]
+				found = (point, slope,)
+	if show_details:
+		print('The result:', found)
 	return res
